@@ -7,7 +7,7 @@
     </ion-header-bar>
     <ion-content has-header="true" has-tabs="true" padding="true">
         <div class="list">
-		    <div ng-show="friendArray.length == 0" class="item item-icon-left" >
+		    <div ng-show="friendArray.length == 0" class="item item-icon-left">
 			    <i class="icon ion-person-stalker"></i>
 			    	朋友列表
 			    <span class="item-note">
@@ -32,10 +32,8 @@
     <div class="modal">
         <header class="bar bar-header bar-positive">
             <button class="button button-positive" ng-click="onCancelClick()">取消</button>
-            <h1 class="title"></h1>
-            <button ng-click="onCreateClick()" ng-show="state == CREATE" class="button button-pastive">新增</button>
-			<button ng-click="onEditClick()" ng-show="state == EDIT" class="button button-pastive">修改</button>
-			<button ng-click="onDeleteClick()" ng-show="state == DELETE" class="button button-pastive">刪除</button>
+            <h1 class="title">{{modalTag.title}}</h1>
+        	<button ng-click="state()" class="button button-pastive">{{modalTag.stateName}}</button>
         </header>
         <ion-content has-header="true" padding="true">
             <div class="list">

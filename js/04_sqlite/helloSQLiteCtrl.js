@@ -1,16 +1,29 @@
-app.controller('HelloSQLiteCtrl', function($scope, $ionicModal, DBManager, Notification, Contacts) {
-	$scope.CREATE: 0;
-	$scope.EDIT: 1;
-	$scope.DELETE: 2;
-
+app.controller('HelloSQLiteCtrl', function($scope, $ionicModal, DBManager, Notification, Contacts){
+	var state = {
+		CREATE: onCreateClick,
+		EDIT: onEditClick,
+		DELETE: onDeleteClick,
+	}
+	
 	$scope.friendArray = [];
 	$scope.model = {};
 	$scope.selectedIndex;
 	$scope.state = state.CREATE;
-	
+
+	$scope.modalTag = {
+		title: "",
+		eventName: "",
+	};
+
 	$scope.rightButtons = [{
 		type: 'button-positive',
 		content: "<i class='icon ion-plus'></i>",
+		tap: onCreateFriendClick,
+	}];
+
+	$scope.leftButtons = [{
+		type: 'button-positive',
+		content: "<i class='icon ion-refresh'></i>",
 		tap: setFriendsFromContacts
 	}];
 
@@ -68,12 +81,7 @@ app.controller('HelloSQLiteCtrl', function($scope, $ionicModal, DBManager, Notif
         console.log(JSON.stringify(e));
     };
 
-    $scope.init = function(){
-    	$scope.friendArray = [];
-    	DBManager.getFriends(getFriendsSuccess);
-    };
-
-    $scope.onCreateClick = function() {
+    function onCreateClick() {
 		if (!$scope.model.name || !$scope.model.phone) {
 			Notification.alert("請輸入姓名及電話", null, '警告', '確定');
 			return;
@@ -88,7 +96,7 @@ app.controller('HelloSQLiteCtrl', function($scope, $ionicModal, DBManager, Notif
 		$scope.modal.hide();
 	};
 	
-	$scope.onEditClick = function() {
+	function onEditClick() {
 		var friend = angular.copy($scope.model);
 		$scope.model = {};
 		$scope.state = state.CREATE;
@@ -98,22 +106,8 @@ app.controller('HelloSQLiteCtrl', function($scope, $ionicModal, DBManager, Notif
 		});
 		$scope.modal.hide();
 	};
-	
-	$scope.onDeleteFriendClick = function(index) {
-		$scope.state = state.DELETE;
-		$scope.model = angular.copy($scope.friendArray[index]);
-		$scope.selectedIndex = index;
-		$scope.modal.show();
-	};
-	
-	$scope.onEditFriendClick = function(index) {
-		$scope.state = state.EDIT;
-		$scope.model = angular.copy($scope.friendArray[index]);
-		$scope.selectedIndex = index;
-		$scope.modal.show();
-	};
-	
-	$scope.onDeleteClick = function() {
+
+	function onDeleteClick() {
 		DBManager.deleteFriend($scope.model.id, function(){
 			$scope.friendArray.splice($scope.selectedIndex, 1);
 		});
@@ -122,9 +116,40 @@ app.controller('HelloSQLiteCtrl', function($scope, $ionicModal, DBManager, Notif
 		$scope.modal.hide();
 	};
 	
+	function onCreateFriendClick(){
+		$scope.state = state.CREATE;
+		$scope.modalTag.title = "新增朋友";
+		$scope.modalTag.stateName = "新增";
+		$scope.model = {};
+		$scope.modal.show();
+	};
+
+	$scope.onDeleteFriendClick = function(index) {
+		$scope.state = state.DELETE;
+		$scope.modalTag.title = "刪除朋友";
+		$scope.modalTag.stateName = "刪除";
+		$scope.model = angular.copy($scope.friendArray[index]);
+		$scope.selectedIndex = index;
+		$scope.modal.show();
+	};
+	
+	$scope.onEditFriendClick = function(index) {
+		$scope.state = state.EDIT;
+		$scope.modalTag.title = "編輯朋友";
+		$scope.modalTag.stateName = "修改";
+		$scope.model = angular.copy($scope.friendArray[index]);
+		$scope.selectedIndex = index;
+		$scope.modal.show();
+	};
+
 	$scope.onCancelClick = function() {
 		$scope.model = {};
-		$scope.state = $scope.CREATE;
+		$scope.state = state.CREATE;
 		$scope.modal.hide();
 	};
+
+    $scope.init = function(){
+    	$scope.friendArray = [];
+    	DBManager.getFriends(getFriendsSuccess);
+    };
 });
