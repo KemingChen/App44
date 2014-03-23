@@ -1,0 +1,48 @@
+<ion-view title="'04 Hello SQLite'" right-buttons="newFriendsButton" ng-init="init()">
+    <ion-content has-header="true" has-tabs="true">
+	    <div class="list">
+	    	<label class="item item-input">
+			    <span class="input-label">姓名: </span>
+			    <input type="text" ng-model="model.name">
+			</label>
+			<label class="item item-input">
+			    <span class="input-label">電話: </span>
+			    <input type="tel" ng-model="model.phone">
+			</label>
+			<label class="item item-input">
+			    <span class="input-label">郵件: </span>
+			    <input type="text" ng-model="model.email">
+			</label>
+			<label class="item item-input">
+			    <span class="input-label">生日: </span>
+			    <input type="text" ng-model="model.birthday">
+			</label>
+			
+		    <button ng-click="onCreateClick()" ng-show="state == CREATE" class="button button-pastive">新增</button>
+			<button ng-click="onEditClick()" ng-show="state == EDIT" class="button button-pastive">修改</button>
+			<button ng-click="onDeleteClick()" ng-show="state == DELETE" class="button button-pastive">刪除</button>
+			<button ng-click="onCancelClick()" class="button button-pastive">取消</button>
+		</div>
+		
+		<div class="list">
+		    <div ng-show="friendArray.length == 0" class="item item-icon-left" >
+			    <i class="icon ion-person-stalker"></i>
+			    	朋友列表
+			    <span class="item-note">
+					請新增朋友
+				</span>
+			</div>
+			
+		    <div ng-show="friendArray.length > 0" ng-repeat="friend in friendArray track by $index" class="item item-button-right">
+                <div ng-click="onEditFriendClick($index)">
+	                <h2>{{friend.name}}</h2>
+	                <p>{{friend.phone}}</p>
+			    </div>
+			    <button class="button button-clear" ng-click="onDeleteFriendClick($index)">
+			    	<i class="icon ion-close"></i>
+			    </button>
+	        </div>
+        </div>
+	    
+    </ion-content>
+</ion-view>
