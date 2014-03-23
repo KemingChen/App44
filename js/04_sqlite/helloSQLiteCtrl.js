@@ -1,19 +1,26 @@
 app.controller('HelloSQLiteCtrl', function($scope, $ionicModal, DBManager, Notification, Contacts){
 	var state = {
-		CREATE: onCreateClick,
-		EDIT: onEditClick,
-		DELETE: onDeleteClick,
+		CREATE: {
+			click: onCreateClick,
+			title: "新增朋友",
+			eventName: "新增",
+		},
+		EDIT: {
+			click: onEditClick,
+			title: "編輯朋友",
+			eventName: "修改",
+		},
+		DELETE: {
+			click: onDeleteClick,
+			title: "刪除朋友",
+			eventName: "刪除",
+		},
 	}
 	
 	$scope.friendArray = [];
 	$scope.model = {};
 	$scope.selectedIndex;
 	$scope.state = state.CREATE;
-
-	$scope.modalTag = {
-		title: "",
-		eventName: "",
-	};
 
 	$scope.rightButtons = [{
 		type: 'button-positive',
@@ -118,16 +125,12 @@ app.controller('HelloSQLiteCtrl', function($scope, $ionicModal, DBManager, Notif
 	
 	function onCreateFriendClick(){
 		$scope.state = state.CREATE;
-		$scope.modalTag.title = "新增朋友";
-		$scope.modalTag.stateName = "新增";
 		$scope.model = {};
 		$scope.modal.show();
 	};
 
 	$scope.onDeleteFriendClick = function(index) {
 		$scope.state = state.DELETE;
-		$scope.modalTag.title = "刪除朋友";
-		$scope.modalTag.stateName = "刪除";
 		$scope.model = angular.copy($scope.friendArray[index]);
 		$scope.selectedIndex = index;
 		$scope.modal.show();
@@ -135,8 +138,6 @@ app.controller('HelloSQLiteCtrl', function($scope, $ionicModal, DBManager, Notif
 	
 	$scope.onEditFriendClick = function(index) {
 		$scope.state = state.EDIT;
-		$scope.modalTag.title = "編輯朋友";
-		$scope.modalTag.stateName = "修改";
 		$scope.model = angular.copy($scope.friendArray[index]);
 		$scope.selectedIndex = index;
 		$scope.modal.show();

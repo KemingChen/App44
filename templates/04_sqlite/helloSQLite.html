@@ -32,8 +32,8 @@
     <div class="modal">
         <header class="bar bar-header bar-positive">
             <button class="button button-positive" ng-click="onCancelClick()">取消</button>
-            <h1 class="title">{{modalTag.title}}</h1>
-        	<button ng-click="state()" class="button button-pastive">{{modalTag.stateName}}</button>
+            <h1 class="title">{{state.title}}</h1>
+        	<button ng-click="state.click()" class="button button-pastive">{{state.stateName}}</button>
         </header>
         <ion-content has-header="true" padding="true">
             <div class="list">
