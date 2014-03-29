@@ -15,6 +15,7 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 			},
 			cancel: {
 				click: function(){
+					clickTime = new Date();
 					$scope.modal.hide();
 				},
 				name: "取消",
@@ -51,6 +52,7 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 			},
 			cancel: {
 				click: function(){
+					clickTime = new Date();
 					$scope.modal.hide();
 				},
 				name: "取消",
