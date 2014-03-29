@@ -1,13 +1,13 @@
-<div ng-init="init()">
+<div>
     <ion-header-bar
         type="bar-positive"
         left-buttons="leftButtons"
         right-buttons="rightButtons" 
-        title="'04 Hello SQLite'">
+        title="'05 SMS'">
     </ion-header-bar>
     <ion-content has-header="true" has-tabs="true" padding="true">
         <div class="list">
-		    <div ng-show="friendArray.length == 0" class="item item-icon-left">
+		    <div ng-show="getCount() == 0" class="item item-icon-left">
 			    <i class="icon ion-person-stalker"></i>
 			    	朋友列表
 			    <span class="item-note">
@@ -15,12 +15,13 @@
 				</span>
 			</div>
 			
-		    <div ng-show="friendArray.length > 0" ng-repeat="friend in friendArray track by $index" class="item item-button-right">
-                <div ng-click="onEditFriendClick($index)">
+		    <div ng-show="getCount() > 0" ng-repeat="friend in friends" class="item item-button-right">
+                <div ng-click="onFriendClick(states.LOOK, friend)">
 	                <h2>{{friend.name}}</h2>
 	                <p>{{friend.phone}}</p>
 			    </div>
-			    <button class="button button-clear" ng-click="onDeleteFriendClick($index)">
+			    <button class="button button-clear" 
+			    		ng-click="onFriendClick(states.DELETE, friend)">
 			    	<i class="icon ion-close"></i>
 			    </button>
 	        </div>
@@ -28,32 +29,46 @@
     </ion-content>
 </div>
 
-<script id="EditFriend.html" type="text/ng-template">
+<script id="Friend.html" type="text/ng-template">
     <div class="modal">
         <header class="bar bar-header bar-positive">
-            <button class="button button-positive" ng-click="onCancelClick()">取消</button>
+            <button class="button button-positive" ng-click="state.cancel.click()">{{state.cancel.name}}</button>
             <h1 class="title">{{state.title}}</h1>
-        	<button ng-click="state.click()" class="button button-pastive">{{state.eventName}}</button>
+        	<button ng-click="state.confirm.click()" class="button button-pastive">{{state.confirm.name}}</button>
         </header>
         <ion-content has-header="true" padding="true">
             <div class="list">
 		    	<label class="item item-input">
 				    <span class="input-label">姓名: </span>
-				    <input type="text" ng-model="model.name">
+				    <input type="text" ng-model="model.name" ng-disabled="state.inputDisable">
 				</label>
 				<label class="item item-input">
 				    <span class="input-label">電話: </span>
-				    <input type="tel" ng-model="model.phone">
+				    <input type="tel" ng-model="model.phone" ng-disabled="state.inputDisable">
 				</label>
 				<label class="item item-input">
 				    <span class="input-label">郵件: </span>
-				    <input type="text" ng-model="model.email">
+				    <input type="text" ng-model="model.email" ng-disabled="state.inputDisable">
 				</label>
 				<label class="item item-input">
 				    <span class="input-label">生日: </span>
-				    <input type="text" ng-model="model.birthday">
+				    <input type="text" ng-model="model.birthday" ng-disabled="state.inputDisable">
 				</label>
 			</div>
         </ion-content>
-    </div>
+
+        <div class="tabs tabs-icon-top tabs-positive" ng-show="state.footer">
+			<a class="tab-item" ng-click="onPhoneClick()">
+				<i class="icon ion-help"></i>
+				電話
+			</a>
+			<a class="tab-item" ng-click="onSMSClick()">
+				<i class="icon ion-email"></i>
+				簡訊
+			</a>
+			<a class="tab-item" ng-show="model.email != ''" ng-click="onEmailClick()">
+				<i class="icon ion-at"></i>
+				Email
+			</a>
+		</div>
 </script>

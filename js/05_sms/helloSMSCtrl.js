@@ -1,31 +1,103 @@
-app.controller('HelloSMSCtrl', function($scope, $ionicModal, DBManager, Notification, Contacts){
-	var state = {
+app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Notification, Contacts, $window){
+	$scope.states = {
 		CREATE: {
-			click: onCreateClick,
+			confirm: {
+				click: function(){
+					if (!$scope.model.name || !$scope.model.phone) {
+						Notification.alert("請輸入姓名及電話", null, '警告', '確定');
+						return;
+					}
+					FriendManager.add($scope.model);
+					$scope.modal.hide();
+				},
+				name: "新增",
+			},
+			cancel: {
+				click: function(){
+					$scope.modal.hide();
+				},
+				name: "取消",
+			},
 			title: "新增朋友",
-			eventName: "新增",
+			footer: false,
+			inputDisable: false,
 		},
 		EDIT: {
-			click: onEditClick,
+			confirm: {
+				click: function(){
+					FriendManager.edit($scope.model);
+					$scope.modal.hide();
+				},
+				name: "修改",
+			},
+			cancel: {
+				click: function(){
+					$scope.onFriendClick($scope.states.LOOK, $scope.friends[$scope.model.id]);
+				},
+				name: "取消",
+			},
 			title: "編輯朋友",
-			eventName: "修改",
+			footer: false,
+			inputDisable: false,
 		},
 		DELETE: {
-			click: onDeleteClick,
+			confirm: {
+				click: function(){
+					FriendManager.remove($scope.model);
+					$scope.modal.hide();
+				},
+				name: "刪除",
+			},
+			cancel: {
+				click: function(){
+					$scope.modal.hide();
+				},
+				name: "取消",
+			},
 			title: "刪除朋友",
-			eventName: "刪除",
+			footer: false,
+			inputDisable: true,
+		},
+		LOOK: {
+			confirm: {
+				click: function(){
+					$scope.onFriendClick($scope.states.EDIT, $scope.model);
+				},
+				name: "編輯",
+			},
+			cancel: {
+				click: function(){
+					$scope.modal.hide();
+				},
+				name: "返回",
+			},
+			title: "朋友",
+			footer: true,
+			inputDisable: true,
 		},
 	}
 	
-	$scope.friendArray = [];
+	$scope.friends = FriendManager.list();
+	$scope.getCount = FriendManager.count;
+	//$scope.friends = {1: {id: 1, name: "keming", phone: "0961276368", birthday: "80-09-12", email: "believe75467@gmail.com"}};
+	//$scope.getCount = function(){return Object.keys($scope.friends).length};
+	
 	$scope.model = {};
-	$scope.selectedIndex;
-	$scope.state = state.CREATE;
+	$scope.state = $scope.states.CREATE;
+	
+	$ionicModal.fromTemplateUrl('Friend.html', function(modal) {
+    	$scope.modal = modal;
+	}, {
+		scope: $scope,
+		animation: 'slide-in-up'
+	});
 
 	$scope.rightButtons = [{
 		type: 'button-positive',
 		content: "<i class='icon ion-plus'></i>",
-		tap: onCreateFriendClick,
+		tap: function(){
+			$scope.onFriendClick($scope.states.CREATE, {});
+		},
 	}];
 
 	$scope.leftButtons = [{
@@ -33,19 +105,6 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, DBManager, Notifica
 		content: "<i class='icon ion-refresh'></i>",
 		tap: setFriendsFromContacts
 	}];
-
-	$ionicModal.fromTemplateUrl('EditFriend.html', function(modal) {
-    	$scope.modal = modal;
-	}, {
-		scope: $scope,
-		animation: 'slide-in-up'
-	});
-
-	function getFriendsSuccess(tx, res) {
-		for (var i = 0, max = res.rows.length; i < max; i++) {
-			$scope.friendArray.push(res.rows.item(i));
-		}
-	};
 	
 	function setFriendsFromContacts() {
         var options = new ContactFindOptions();
@@ -56,7 +115,6 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, DBManager, Notifica
 	};
 
     function onSetFriendsFromContactsSuccess(contactArray) {
-    	//console.log(JSON.stringify(contactArray));
         for (var i = 0, max = contactArray.length; i < max; i++) {
         	var contactName = contactArray[i].displayName;
         	var mobileNumber = getMobileNumber(contactArray[i].phoneNumbers);
@@ -65,13 +123,12 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, DBManager, Notifica
 
             var friend = {
                 name: contactName,
-                phone: mobileNumber,
+                phone: mobileNumber.replace(/-/g, "").replace(/ /g, ""),
                 email: (contactArray[i].emails && contactArray[i].emails.length > 0) ? contactArray[i].emails[0].value : "",
-                birthday: contactArray[i].birthday
+                birthday: contactArray[i].birthday,
             };
-            DBManager.addFriend(friend);
+            FriendManager.add(friend);
         }
-        $scope.init();
     };
 	
 	function getMobileNumber(phoneNumbers) {
@@ -88,69 +145,26 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, DBManager, Notifica
         console.log(JSON.stringify(e));
     };
 
-    function onCreateClick() {
-		if (!$scope.model.name || !$scope.model.phone) {
-			Notification.alert("請輸入姓名及電話", null, '警告', '確定');
-			return;
-		}
-
-		var friend = angular.copy($scope.model);
-		$scope.model = {};
-
-		DBManager.addFriend(friend, function() {
-			$scope.friendArray.push(friend);
-	    });
-		$scope.modal.hide();
-	};
-	
-	function onEditClick() {
-		var friend = angular.copy($scope.model);
-		$scope.model = {};
-		$scope.state = state.CREATE;
-
-		DBManager.updateFriend(friend, function() {
-			$scope.friendArray[$scope.selectedIndex] = friend;
-		});
-		$scope.modal.hide();
-	};
-
-	function onDeleteClick() {
-		DBManager.deleteFriend($scope.model.id, function(){
-			$scope.friendArray.splice($scope.selectedIndex, 1);
-		});
-		$scope.model = {};
-		$scope.state = state.CREATE;
-		$scope.modal.hide();
-	};
-	
-	function onCreateFriendClick(){
-		$scope.state = state.CREATE;
-		$scope.model = {};
-		$scope.modal.show();
-	};
-
-	$scope.onDeleteFriendClick = function(index) {
-		$scope.state = state.DELETE;
-		$scope.model = angular.copy($scope.friendArray[index]);
-		$scope.selectedIndex = index;
+	$scope.onFriendClick = function(state, friend){
+		$scope.state = state;
+		$scope.model = friend;
 		$scope.modal.show();
 	};
 	
-	$scope.onEditFriendClick = function(index) {
-		$scope.state = state.EDIT;
-		$scope.model = angular.copy($scope.friendArray[index]);
-		$scope.selectedIndex = index;
-		$scope.modal.show();
+	$scope.onPhoneClick = function() {
+		$window.open("tel:"+ $scope.model.phone);
 	};
 
-	$scope.onCancelClick = function() {
-		$scope.model = {};
-		$scope.state = state.CREATE;
-		$scope.modal.hide();
+	$scope.onSMSClick = function() {
+		var message = $scope.model.name + "：真高興，你又長了一歲。祝你生日快樂，永遠快樂！";
+		$window.sms.send($scope.model.phone, message, "INTENT");
+		//$window.open("sms:"+ $scope.model.phone + "?body=" + message);
 	};
-
-    $scope.init = function(){
-    	$scope.friendArray = [];
-    	DBManager.getFriends(getFriendsSuccess);
-    };
+	
+	$scope.onEmailClick = function() {
+		var subject = "生日快樂！";
+		var message = $scope.model.name + "：真高興，你又長了一歲。祝你生日快樂，永遠快樂！";
+		$window.plugins.emailComposer.showEmailComposer(subject, message, [$scope.model.email], [], [], true, []);
+		//$window.open('mailto:' + $scope.model.email + '?subject=' + subject + '&body=' + message);
+	};
 });
