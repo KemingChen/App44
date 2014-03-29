@@ -1,0 +1,59 @@
+<div ng-init="init()">
+    <ion-header-bar
+        type="bar-positive"
+        left-buttons="leftButtons"
+        right-buttons="rightButtons" 
+        title="'04 Hello SQLite'">
+    </ion-header-bar>
+    <ion-content has-header="true" has-tabs="true" padding="true">
+        <div class="list">
+		    <div ng-show="friendArray.length == 0" class="item item-icon-left">
+			    <i class="icon ion-person-stalker"></i>
+			    	朋友列表
+			    <span class="item-note">
+					請新增朋友
+				</span>
+			</div>
+			
+		    <div ng-show="friendArray.length > 0" ng-repeat="friend in friendArray track by $index" class="item item-button-right">
+                <div ng-click="onEditFriendClick($index)">
+	                <h2>{{friend.name}}</h2>
+	                <p>{{friend.phone}}</p>
+			    </div>
+			    <button class="button button-clear" ng-click="onDeleteFriendClick($index)">
+			    	<i class="icon ion-close"></i>
+			    </button>
+	        </div>
+        </div>
+    </ion-content>
+</div>
+
+<script id="EditFriend.html" type="text/ng-template">
+    <div class="modal">
+        <header class="bar bar-header bar-positive">
+            <button class="button button-positive" ng-click="onCancelClick()">取消</button>
+            <h1 class="title">{{state.title}}</h1>
+        	<button ng-click="state.click()" class="button button-pastive">{{state.eventName}}</button>
+        </header>
+        <ion-content has-header="true" padding="true">
+            <div class="list">
+		    	<label class="item item-input">
+				    <span class="input-label">姓名: </span>
+				    <input type="text" ng-model="model.name">
+				</label>
+				<label class="item item-input">
+				    <span class="input-label">電話: </span>
+				    <input type="tel" ng-model="model.phone">
+				</label>
+				<label class="item item-input">
+				    <span class="input-label">郵件: </span>
+				    <input type="text" ng-model="model.email">
+				</label>
+				<label class="item item-input">
+				    <span class="input-label">生日: </span>
+				    <input type="text" ng-model="model.birthday">
+				</label>
+			</div>
+        </ion-content>
+    </div>
+</script>
