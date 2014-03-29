@@ -1,4 +1,5 @@
 app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Notification, Contacts, $window){
+	var clickTime = new Date();
 	$scope.states = {
 		CREATE: {
 			confirm: {
@@ -67,6 +68,7 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 			},
 			cancel: {
 				click: function(){
+					clickTime = new Date();
 					$scope.modal.hide();
 				},
 				name: "返回",
@@ -96,6 +98,7 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 		type: 'button-positive',
 		content: "<i class='icon ion-plus'></i>",
 		tap: function(){
+			$scope.preventDefault();
 			$scope.onFriendClick($scope.states.CREATE, {});
 		},
 	}];
@@ -103,7 +106,10 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 	$scope.leftButtons = [{
 		type: 'button-positive',
 		content: "<i class='icon ion-refresh'></i>",
-		tap: setFriendsFromContacts
+		tap: function(){
+			$scope.preventDefault();
+			setFriendsFromContacts();
+		}
 	}];
 	
 	function setFriendsFromContacts() {
@@ -146,6 +152,7 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
     };
 
 	$scope.onFriendClick = function(state, friend){
+		clickTime = new Date();
 		$scope.state = state;
 		$scope.model = friend;
 		$scope.modal.show();
@@ -166,5 +173,11 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 		var message = $scope.model.name + "：真高興，你又長了一歲。祝你生日快樂，永遠快樂！";
 		$window.plugins.emailComposer.showEmailComposer(subject, message, [$scope.model.email], [], [], true, []);
 		//$window.open('mailto:' + $scope.model.email + '?subject=' + subject + '&body=' + message);
+	};
+
+	$scope.preventDefault = function(){
+		if((new Date()) - clickTime < 1000){
+			throw "click too short!!!";
+		}
 	};
 });

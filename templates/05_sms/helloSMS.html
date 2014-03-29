@@ -32,9 +32,9 @@
 <script id="Friend.html" type="text/ng-template">
     <div class="modal">
         <header class="bar bar-header bar-positive">
-            <button class="button button-positive" ng-click="state.cancel.click()">{{state.cancel.name}}</button>
+            <button class="button button-positive" ng-click="preventDefault();state.cancel.click();">{{state.cancel.name}}</button>
             <h1 class="title">{{state.title}}</h1>
-        	<button ng-click="state.confirm.click()" class="button button-pastive">{{state.confirm.name}}</button>
+        	<button ng-click="preventDefault();state.confirm.click();" class="button button-pastive">{{state.confirm.name}}</button>
         </header>
         <ion-content has-header="true" padding="true">
             <div class="list">
