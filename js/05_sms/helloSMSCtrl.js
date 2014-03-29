@@ -79,6 +79,7 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 		},
 	}
 	
+	$scope.loading = false;
 	$scope.friends = FriendManager.list();
 	$scope.getCount = FriendManager.count;
 	//$scope.friends = {1: {id: 1, name: "keming", phone: "0961276368", birthday: "80-09-12", email: "believe75467@gmail.com"}};
@@ -108,6 +109,7 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 		content: "<i class='icon ion-refresh'></i>",
 		tap: function(){
 			$scope.preventDefault();
+			$scope.loading = true;
 			setFriendsFromContacts();
 		}
 	}];
@@ -117,7 +119,7 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
         options.multiple = true;
         options.filter = "";
         var fields = ["displayName", "phoneNumbers", "emails", "birthday"];
-        Contacts.find(fields, onSetFriendsFromContactsSuccess, showError, options);
+        Contacts.find(fields, onSetFriendsFromContactsSuccess, onSetFriendsFromContactsError, options);
 	};
 
     function onSetFriendsFromContactsSuccess(contactArray) {
@@ -133,6 +135,7 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
                 email: (contactArray[i].emails && contactArray[i].emails.length > 0) ? contactArray[i].emails[0].value : "",
                 birthday: contactArray[i].birthday,
             };
+			$scope.loading = false;
             FriendManager.add(friend);
         }
     };
@@ -147,7 +150,8 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 		return null;
 	};
     
-    function showError(e) {
+    function onSetFriendsFromContactsError(e) {
+		$scope.loading = false;
         console.log(JSON.stringify(e));
     };
 
@@ -164,19 +168,19 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 
 	$scope.onSMSClick = function() {
 		var message = $scope.model.name + "：真高興，你又長了一歲。祝你生日快樂，永遠快樂！";
-		$window.sms.send($scope.model.phone, message, "INTENT");
-		//$window.open("sms:"+ $scope.model.phone + "?body=" + message);
+		//$window.sms.send($scope.model.phone, message, "INTENT");
+		$window.open("sms:"+ $scope.model.phone + "?body=" + message);
 	};
 	
 	$scope.onEmailClick = function() {
 		var subject = "生日快樂！";
 		var message = $scope.model.name + "：真高興，你又長了一歲。祝你生日快樂，永遠快樂！";
-		$window.plugins.emailComposer.showEmailComposer(subject, message, [$scope.model.email], [], [], true, []);
-		//$window.open('mailto:' + $scope.model.email + '?subject=' + subject + '&body=' + message);
+		//$window.plugins.emailComposer.showEmailComposer(subject, message, [$scope.model.email], [], [], true, []);
+		$window.open('mailto:' + $scope.model.email + '?subject=' + subject + '&body=' + message);
 	};
 
 	$scope.preventDefault = function(){
-		if((new Date()) - clickTime < 1000){
+		if((new Date()) - clickTime < 1000 || $scope.loading){
 			throw "click too short!!!";
 		}
 	};

@@ -3,7 +3,7 @@ app.factory('DBManager', function($window, PhoneGap) {
     PhoneGap.ready(function() {
         db = $window.sqlitePlugin.openDatabase({name: "BirthdayLineDB"});
         db.transaction(function(tx) {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS friends(id INTEGER PRIMARY KEY ASC, name TEXT, phone TEXT UNIQUE, email TEXT, birthday DATE)", []);
+            tx.executeSql("CREATE TABLE IF NOT EXISTS friends(id INTEGER PRIMARY KEY ASC, name TEXT, phone TEXT, email TEXT, birthday DATE)", []);
         });
     });
     

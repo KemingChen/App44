@@ -7,7 +7,11 @@
     </ion-header-bar>
     <ion-content has-header="true" has-tabs="true" padding="true">
         <div class="list">
-		    <div ng-show="getCount() == 0" class="item item-icon-left">
+        	<div ng-show="loading" class="item item-icon-left">
+			    讀取資料中...
+			</div>
+
+		    <div ng-show="getCount() == 0 && !loading" class="item item-icon-left">
 			    <i class="icon ion-person-stalker"></i>
 			    	朋友列表
 			    <span class="item-note">
@@ -15,7 +19,7 @@
 				</span>
 			</div>
 			
-		    <div ng-show="getCount() > 0" ng-repeat="friend in friends" class="item item-button-right">
+		    <div ng-show="getCount() > 0 && !loading" ng-repeat="friend in friends" class="item item-button-right">
                 <div ng-click="onFriendClick(states.LOOK, friend)">
 	                <h2>{{friend.name}}</h2>
 	                <p>{{friend.phone}}</p>
