@@ -1,4 +1,4 @@
-app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Notification, Contacts, $window){
+app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Notification, Contacts, $window, BusyIndicator){
 	var clickTime = new Date();
 	$scope.states = {
 		CREATE: {
@@ -170,15 +170,15 @@ app.controller('HelloSMSCtrl', function($scope, $ionicModal, FriendManager, Noti
 
 	$scope.onSMSClick = function() {
 		var message = $scope.model.name + "：真高興，你又長了一歲。祝你生日快樂，永遠快樂！";
-		//$window.sms.send($scope.model.phone, message, "INTENT");
-		$window.open("sms:"+ $scope.model.phone + "?body=" + message);
+		$window.sms.send($scope.model.phone, message, "INTENT");
+		//$window.open("sms:"+ $scope.model.phone + "?body=" + message);
 	};
 	
 	$scope.onEmailClick = function() {
 		var subject = "生日快樂！";
 		var message = $scope.model.name + "：真高興，你又長了一歲。祝你生日快樂，永遠快樂！";
-		//$window.plugins.emailComposer.showEmailComposer(subject, message, [$scope.model.email], [], [], true, []);
-		$window.open('mailto:' + $scope.model.email + '?subject=' + subject + '&body=' + message);
+		$window.plugins.emailComposer.showEmailComposer(subject, message, [$scope.model.email], [], [], true, []);
+		//$window.open('mailto:' + $scope.model.email + '?subject=' + subject + '&body=' + message);
 	};
 
 	$scope.preventDefault = function(){
