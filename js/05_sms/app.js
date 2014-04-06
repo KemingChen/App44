@@ -18,5 +18,12 @@ app.config(function($stateProvider, $urlRouterProvider) {
         });
 
     $urlRouterProvider.otherwise("/tab/hellosms");
+})
+.run(function(){
+    document.addEventListener('deviceready', function() {
+        $rootScope.$apply(function() {
+            $rootScope.myVariable = "variable value";
+        });
+    });
 });
 
