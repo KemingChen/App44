@@ -1,4 +1,4 @@
-app.controller('FriendsCtrl', function($scope, $ionicModal, FriendManager, Notification, Contacts, $window, BusyIndicator){
+app.controller('FriendsCtrl', function($scope, $ionicModal, $rootScope, FriendManager, Notification, Contacts, $window, BusyIndicator, SettingManager, iLabMessage){
 	var clickTime = new Date();
 	$scope.states = {
 		CREATE: {
@@ -79,19 +79,36 @@ app.controller('FriendsCtrl', function($scope, $ionicModal, FriendManager, Notif
 			footer: true,
 			inputDisable: true,
 		},
+		CHAT: {
+			cancel: {
+				click: function(){
+					clickTime = new Date();
+					$scope.chatModal.hide();
+					$scope.state = $scope.states.LOOK;
+				},
+				name: "返回",
+			},
+			footer: true,
+			inputDisable: true,
+		},
 	}
-	
-	$scope.loading = false;
-	$scope.friends = FriendManager.list();
-	$scope.getCount = FriendManager.count;
-	//$scope.friends = {1: {id: 1, name: "keming", phone: "0961276368", birthday: "80-09-12", email: "believe75467@gmail.com"}};
-	//$scope.getCount = function(){return Object.keys($scope.friends).length};
+
+	var isDebug = false;
+	$scope.friends = !isDebug ? FriendManager.list() : {1: {id: 1, name: "keming", phone: "0961276368", birthday: "80-09-12", email: "believe75467@gmail.com"}};
+	$scope.getCount = !isDebug ? FriendManager.count : function(){return Object.keys($scope.friends).length};
 	
 	$scope.model = {};
 	$scope.state = $scope.states.CREATE;
 	
 	$ionicModal.fromTemplateUrl('Friend.html', function(modal) {
     	$scope.modal = modal;
+	}, {
+		scope: $scope,
+		animation: 'slide-in-up'
+	});
+
+	$ionicModal.fromTemplateUrl('Chat.html', function(modal) {
+    	$scope.chatModal = modal;
 	}, {
 		scope: $scope,
 		animation: 'slide-in-up'
@@ -111,11 +128,28 @@ app.controller('FriendsCtrl', function($scope, $ionicModal, FriendManager, Notif
 		content: "<i class='icon ion-refresh'></i>",
 		tap: function(){
 			$scope.preventDefault();
-			$scope.loading = true;
+			$rootScope.show();
 			setFriendsFromContacts();
 		}
 	}];
 	
+	$rootScope.$on('phonegapPush.notification', function(event, res) {
+		var index = res.data.indexOf(":");
+		var phone = res.data.substring(0, index);
+		var message = res.data.substring(index + 1, res.data.length);
+		var host = SettingManager.getHost();
+		var chats = host[phone] || [];
+
+		$scope.model = FriendManager.getByPhone(phone);
+		chats.push({who: 'o', message: message});
+		host[phone] = chats;
+		SettingManager.setHost(host);
+
+		$scope.state = $scope.LOOK;
+		$scope.modal.chats = chats;
+		$scope.$apply();
+	});
+
 	function setFriendsFromContacts() {
         var options = new ContactFindOptions();
         options.multiple = true;
@@ -137,9 +171,9 @@ app.controller('FriendsCtrl', function($scope, $ionicModal, FriendManager, Notif
                 email: (contactArray[i].emails && contactArray[i].emails.length > 0) ? contactArray[i].emails[0].value : "",
                 birthday: contactArray[i].birthday,
             };
-			$scope.loading = false;
             FriendManager.add(friend);
         }
+		$rootScope.hide();
     };
 	
 	function getMobileNumber(phoneNumbers) {
@@ -153,7 +187,7 @@ app.controller('FriendsCtrl', function($scope, $ionicModal, FriendManager, Notif
 	};
     
     function onSetFriendsFromContactsError(e) {
-		$scope.loading = false;
+		$rootScope.hide();
         console.log(JSON.stringify(e));
     };
 
@@ -182,8 +216,45 @@ app.controller('FriendsCtrl', function($scope, $ionicModal, FriendManager, Notif
 	};
 
 	$scope.preventDefault = function(){
-		if((new Date()) - clickTime < 1000 || $scope.loading){
+		if((new Date()) - clickTime < 1000){
 			throw "click too short!!!";
 		}
 	};
+
+	$scope.onSendMessageClick = function() {
+		var host = SettingManager.getHost();
+		var sPhone = host.phone;
+		var oPhone = $scope.model.phone;
+		var chats = host[oPhone] || [];
+
+		iLabMessage.sendMessage(sPhone, oPhone, $scope.message);
+		chats.push({who: 's', message: $scope.message});
+		host[oPhone] = chats;
+		SettingManager.setHost(host);
+
+		$scope.model.chats = chats;
+		$scope.message = "";
+		$scope.$apply();
+		console.log(JSON.stringify($scope.model.chats));
+	};
+	
+	$scope.onMessageClick = function() {
+		$scope.state = $scope.states.CHAT;
+		$scope.model.chats = SettingManager.getHost()[$scope.model.phone];
+		console.log(JSON.stringify($scope.model.chats));
+		$scope.chatModal.show();
+	};
+
+	$scope.onTextChange = function(txt){
+		$scope.message = txt;
+	};
+
+	$scope.cleanChats = function(){
+		var host = SettingManager.getHost();
+		var phone = $scope.model.phone;
+		host[phone] = [];
+		SettingManager.setHost(host);
+
+		$scope.onMessageClick();
+	}
 });

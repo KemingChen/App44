@@ -3,11 +3,11 @@
         type="bar-positive"
         left-buttons="leftButtons"
         right-buttons="rightButtons" 
-        title="'05 SMS'">
+        title="'06 PUSH'">
     </ion-header-bar>
     <ion-content has-header="true" has-tabs="true" padding="true">
         <div class="list">
-        	<div ng-show="loading" class="item item-icon-left">
+        	<div ng-show="false" class="item item-icon-left">
 			    讀取資料中...
 			</div>
 
@@ -74,5 +74,33 @@
 				<i class="icon ion-ios7-email"></i>
 				Email
 			</a>
+			<a class="tab-item" ng-click="onMessageClick()">
+				<i class="icon ion-ios7-email"></i>
+				訊息
+			</a>
 		</div>
+</script>
+
+<script id="Chat.html" type="text/ng-template">
+    <div class="modal">
+        <header class="bar bar-header bar-positive">
+            <button class="button button-positive" ng-click="preventDefault();state.cancel.click();">{{state.cancel.name}}</button>
+            <h1 class="title">{{model.name}}</h1>
+            <button class="button button-positive" ng-click="preventDefault();cleanChats();">清除</button>
+        </header>
+        <ion-content has-header="true" padding="true">
+        	<label class="item item-input">
+				<input class="form-control col col-80" type="text" ng-model="message" ng-change="onTextChange(message)">
+				<button class="col col-20 button button-full" style="padding: 0;" ng-click="onSendMessageClick()">送出</button>
+			</label>
+        	<div ng-repeat="chat in model.chats" class="row">
+                <div class="col col-90 {{chat.who == 's' ? 'col-offset-10' : ''}}" style="padding: 0;">
+					<div class="card">
+						<div class="item item-text-wrap" align="{{chat.who == 's' ? 'right' : 'left'}}">
+							{{chat.message}}
+						</div>
+					</div>
+				</div>
+	        </div>
+        </ion-content>
 </script>

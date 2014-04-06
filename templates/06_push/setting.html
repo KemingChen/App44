@@ -1,4 +1,10 @@
-<ion-view title="'我的設定'" ng-init="init()">
+<div>
+    <ion-header-bar
+        type="bar-positive"
+        left-buttons="leftButtons"
+        right-buttons="rightButtons" 
+        title="'我的設定'" ng-init="init()">
+    </ion-header-bar>
 	<ion-content has-header="true" padding="true">
 			<div class="list card">
 				<div class="list">
@@ -35,4 +41,4 @@
 			<a class="button button-positive" ng-show="state == DELETE" ng-click="onDeleteClick()">確定</a>
 			<a class="button button-positive" ng-show="state == DELETE" ng-click="onCancelClick()">取消</a>
 	</ion-content>
-</ion-view>
+</div>

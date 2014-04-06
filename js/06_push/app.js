@@ -29,7 +29,7 @@ app.config(function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise("/tab/friends");
 });
 
-app.run(function(SettingManager, PushNotificationsFactory) {
+app.run(function($rootScope, $ionicLoading, SettingManager, PushNotificationsFactory) {
 	var GCMSENDERID = '325215294371';
 	
 	PushNotificationsFactory(GCMSENDERID, function(token, type) {
@@ -41,4 +41,18 @@ app.run(function(SettingManager, PushNotificationsFactory) {
 			host.type = 1;
 		SettingManager.setHost(host);
 	});
+
+    $rootScope.show = function() {
+        $rootScope.loading = $ionicLoading.show({
+            content: "<i class='ion-loading-b'></i>",
+            animation: 'fade-in',
+            showBackdrop: true,
+            maxWidth: 200,
+            showDelay: 500,
+        });
+    };
+
+    $rootScope.hide = function(){
+        $rootScope.loading.hide();
+    };
 });
